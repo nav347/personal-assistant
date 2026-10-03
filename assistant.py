@@ -1,8 +1,6 @@
 import sys
 import json
-import config
 import api_clients
-import diagnostics
 import tools
 
 
@@ -72,35 +70,45 @@ def get_user_input():
         return None
 
 
-def cascade_llm(messages, gemini_ok, groq_ok):
-    if gemini_ok:
-        reply, active_model = api_clients.call_gemini(messages)
-        if reply:
-            return reply, active_model
+def print_provider_status():
+    print("\n📡 Provider Gateway")
 
-    if groq_ok:
-        reply, active_model = api_clients.call_groq(messages)
-        if reply:
-            return reply, active_model
+    for item in api_clients.provider_status():
+        print(
+            f"  {item['provider']:8} "
+            f"{item['model']:35} "
+            f"{item['state']}"
+        )
 
-    print(
-        "\n❌ LLM request failed. "
-        "Returning to the user prompt instead of exiting."
-    )
+    print()
 
-    return None, None
+
+def run_agent_turn(messages):
+    """
+    Send one conversational turn through the single unified gateway.
+
+    Provider selection, cooldowns, failover, and model routing all
+    belong inside api_clients.py.
+    """
+
+    return api_clients.call_llm(messages)
 
 
 def main():
-    gemini_ok, groq_ok = diagnostics.run_startup_checks()
-
-    if not gemini_ok and not groq_ok:
-        print("❌ No working LLM providers available.")
-        sys.exit(1)
-
-    print("🤖 INTERACTIVE CONVERSATIONAL AGENT ONLINE")
+    print("=============================================================")
+    print("🤖 PERSONAL OS AGENT")
+    print("=============================================================")
     print("Type 'exit' or 'quit' to close.")
-    print("Type '/paste' for multiline input.\n")
+    print("Type '/paste' for multiline input.")
+    print("Type '/status' to inspect provider state.")
+    print()
+
+    # Do NOT make API requests at startup.
+    #
+    # Startup health checks can consume quota and can themselves
+    # trigger rate limits. The gateway will discover availability
+    # when an actual request is made.
+    print_provider_status()
 
     messages = []
 
@@ -113,20 +121,29 @@ def main():
         if not user_input.strip():
             continue
 
+        if user_input.strip().lower() == "/status":
+            print_provider_status()
+            continue
+
         messages.append({
             "role": "user",
             "content": user_input
         })
 
-        response_text, active_model = cascade_llm(
-            messages,
-            gemini_ok,
-            groq_ok
-        )
+        response_text, active_model = run_agent_turn(messages)
 
-        # IMPORTANT:
-        # Never exit the application just because an LLM request failed.
         if response_text is None:
+            print(
+                "\n❌ No model currently available."
+            )
+            print(
+                f"   Gateway: {active_model}"
+            )
+            print(
+                "   Your conversation was kept; "
+                "you can try again.\n"
+            )
+
             messages.pop()
             continue
 
@@ -138,69 +155,80 @@ def main():
         try:
             exec_data = json.loads(response_text.strip())
 
-            if "command" in exec_data:
-                print(
-                    f"\n🧠 Agent Layer [{active_model}]: "
-                    f"{exec_data.get('thought', '')}"
-                )
-
-                print(
-                    f"💻 Shell Action: "
-                    f"{exec_data['command']}"
-                )
-
-                output = tools.execute_bash(
-                    exec_data["command"]
-                )
-
-                terminal_output = (
-                    output["stdout"]
-                    if output["stdout"]
-                    else output["stderr"]
-                )
-
-                print(
-                    f"📊 Terminal Output:\n"
-                    f"{terminal_output}\n"
-                )
-
-                messages.append({
-                    "role": "user",
-                    "content": (
-                        f"Terminal Result "
-                        f"(Exit Code {output['code']}):\n"
-                        f"STDOUT:\n{output['stdout']}\n"
-                        f"STDERR:\n{output['stderr']}"
-                    )
-                })
-
-                final_reply, final_model = cascade_llm(
-                    messages,
-                    gemini_ok,
-                    groq_ok
-                )
-
-                if final_reply is not None:
-                    print(
-                        f"🤖 Assistant ➔ {final_reply}\n"
-                    )
-
-                    messages.append({
-                        "role": "assistant",
-                        "content": final_reply
-                    })
-
-            else:
-                print(
-                    f"\n🤖 {active_model} ➔ "
-                    f"{response_text}\n"
-                )
-
         except json.JSONDecodeError:
             print(
                 f"\n🤖 {active_model} ➔ "
                 f"{response_text}\n"
             )
+            continue
+
+        if not isinstance(exec_data, dict):
+            print(
+                f"\n🤖 {active_model} ➔ "
+                f"{response_text}\n"
+            )
+            continue
+
+        if "command" not in exec_data:
+            print(
+                f"\n🤖 {active_model} ➔ "
+                f"{response_text}\n"
+            )
+            continue
+
+        print(
+            f"\n🧠 Agent Layer [{active_model}]: "
+            f"{exec_data.get('thought', '')}"
+        )
+
+        print(
+            f"💻 Shell Action: "
+            f"{exec_data['command']}"
+        )
+
+        output = tools.execute_bash(
+            exec_data["command"]
+        )
+
+        terminal_output = (
+            output["stdout"]
+            if output["stdout"]
+            else output["stderr"]
+        )
+
+        print(
+            f"📊 Terminal Output:\n"
+            f"{terminal_output}\n"
+        )
+
+        messages.append({
+            "role": "user",
+            "content": (
+                f"Terminal Result "
+                f"(Exit Code {output['code']}):\n"
+                f"STDOUT:\n{output['stdout']}\n"
+                f"STDERR:\n{output['stderr']}"
+            )
+        })
+
+        final_reply, final_model = run_agent_turn(messages)
+
+        if final_reply is None:
+            print(
+                "\n⚠️ Command executed, but no model is "
+                "currently available to summarize the result.\n"
+            )
+            continue
+
+        print(
+            f"🤖 {final_model} ➔ "
+            f"{final_reply}\n"
+        )
+
+        messages.append({
+            "role": "assistant",
+            "content": final_reply
+        })
 
 
 if __name__ == "__main__":

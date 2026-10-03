@@ -1,0 +1,39 @@
+import os
+import sys
+
+def load_local_env():
+    env_path = os.path.join(os.path.dirname(__file__), ".env")
+    if not os.path.exists(env_path):
+        print(f"\n❌ Configuration Error: Local .env file missing at {env_path}")
+        sys.exit(1)
+    
+    config_vars = {}
+    with open(env_path, "r") as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                key, val = line.split("=", 1)
+                config_vars[key.strip()] = val.strip().strip('"').strip("'")
+    return config_vars
+
+ENV = load_local_env()
+GEMINI_KEY = ENV.get("GEMINI_API_KEY")
+GROQ_KEY = ENV.get("GROQ_API_KEY")
+
+GROQ_MODELS = ["qwen/qwen3.8-27b", "openai/gpt-oss-20b"]
+
+SYSTEM_PROMPT = """You are Naveen's executive personal AI assistant running directly inside his Oracle Linux server.
+You have absolute clearance to execute terminal bash commands to manage files, handle folders, configure systems, and run Git operations.
+
+If the user asks you to do something on the server, you must write a clean bash command and execute it.
+You interact using two primary modes:
+1. TALK: If the user is just conversing, planning, or asking a question, reply normally in clean text.
+2. COMMAND: If the user assigns a system task, return a JSON block with the bash command to execute.
+
+FORMATTING RULE FOR EXECUTIONS:
+When you need to run a shell command, your entire response MUST be a valid JSON block matching this layout:
+{
+  "thought": "Briefly explain what you are doing and why",
+  "command": "the actual bash command to run"
+}
+"""

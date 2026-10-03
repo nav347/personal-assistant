@@ -2,31 +2,113 @@ import os
 import sys
 
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+# ============================================================================
+# Environment
+# ============================================================================
+
 def load_local_env():
-    env_path = os.path.join(os.path.dirname(__file__), ".env")
+    env_path = os.path.join(
+        BASE_DIR,
+        ".env"
+    )
 
     if not os.path.exists(env_path):
-        print(f"\n❌ Configuration Error: Local .env file missing at {env_path}")
+        print(
+            f"\n❌ Configuration Error: "
+            f"Local .env file missing at {env_path}"
+        )
         sys.exit(1)
 
-    config_vars = {}
+    values = {}
 
-    with open(env_path, "r", encoding="utf-8") as f:
-        for line in f:
+    with open(
+        env_path,
+        "r",
+        encoding="utf-8"
+    ) as file:
+
+        for line in file:
             line = line.strip()
 
-            if line and not line.startswith("#") and "=" in line:
-                key, val = line.split("=", 1)
-                config_vars[key.strip()] = (
-                    val.strip().strip('"').strip("'")
+            if (
+                line
+                and not line.startswith("#")
+                and "=" in line
+            ):
+                key, value = line.split("=", 1)
+
+                values[key.strip()] = (
+                    value.strip()
+                    .strip('"')
+                    .strip("'")
                 )
 
-    return config_vars
+    return values
 
+
+ENV = load_local_env()
+
+GEMINI_KEY = ENV.get("GEMINI_API_KEY")
+GROQ_KEY = ENV.get("GROQ_API_KEY")
+
+
+# ============================================================================
+# Provider configuration
+# ============================================================================
+
+PROVIDER_ORDER = [
+    "gemini",
+    "groq",
+]
+
+
+# Keep this list limited to models we have intentionally configured.
+#
+# More providers/models can be added later without changing the harness.
+
+GEMINI_MODELS = [
+    "gemini-3.8-flash",
+]
+
+
+GROQ_MODELS = [
+    "openai/gpt-oss-20b",
+    "qwen/qwen3.8-27b",
+]
+
+
+# ============================================================================
+# Network / failover behavior
+# ============================================================================
+
+REQUEST_TIMEOUT = 30
+
+# A model that receives 429 should not immediately be hammered again.
+RATE_LIMIT_COOLDOWN = 60
+
+# Temporary server-side problems.
+SERVER_ERROR_COOLDOWN = 20
+
+# Network failures.
+NETWORK_COOLDOWN = 15
+
+# Timeouts.
+TIMEOUT_COOLDOWN = 30
+
+# Invalid model / bad configuration / authorization problems.
+CONFIG_ERROR_COOLDOWN = 300
+
+
+# ============================================================================
+# Personal OS
+# ============================================================================
 
 def load_system_prompt():
     prompt_path = os.path.join(
-        os.path.dirname(__file__),
+        BASE_DIR,
         "personal_os.md"
     )
 
@@ -37,31 +119,22 @@ def load_system_prompt():
         )
         sys.exit(1)
 
-    with open(prompt_path, "r", encoding="utf-8") as f:
-        prompt = f.read().strip()
+    with open(
+        prompt_path,
+        "r",
+        encoding="utf-8"
+    ) as file:
+
+        prompt = file.read().strip()
 
     if not prompt:
-        print("\n❌ Configuration Error: personal_os.md is empty.")
+        print(
+            "\n❌ Configuration Error: "
+            "personal_os.md is empty."
+        )
         sys.exit(1)
 
     return prompt
 
 
-ENV = load_local_env()
-
-GEMINI_KEY = ENV.get("GEMINI_API_KEY")
-GROQ_KEY = ENV.get("GROQ_API_KEY")
-
-GEMINI_MODEL = "gemini-3.8-flash"
-
-GROQ_MODELS = [
-    "openai/gpt-oss-20b",
-    "qwen/qwen3.8-27b",
-    "llama-3.3-70b-versatile",
-]
-
-# Persistent Personal OS instructions.
-# This file is intentionally external to the Python code so the
-# assistant's operating instructions can evolve without modifying
-# the application itself.
 SYSTEM_PROMPT = load_system_prompt()

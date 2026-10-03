@@ -1,0 +1,71 @@
+import requests
+import config
+
+def call_gemini(messages):
+    if not config.GEMINI_KEY:
+        return None, "Key Missing"
+    
+    # Absolute, verified full URL path for secure Gemini endpoint calls
+    url = "https://googleapis.com"
+    
+    headers = {
+        "Authorization": f"Bearer {config.GEMINI_KEY}", 
+        "Content-Type": "application/json", 
+        "User-Agent": "Mozilla/5.0"
+    }
+    
+    contents = []
+    for m in messages:
+        if m["role"] == "system": continue
+        role = "user" if m["role"] == "user" else "model"
+        contents.append({"role": role, "parts": [{"text": m["content"]}]})
+        
+    payload = {
+        "contents": contents,
+        "systemInstruction": {"parts": [{"text": config.SYSTEM_PROMPT}]},
+        "generationConfig": {"temperature": 0.2}
+    }
+    
+    try:
+        res = requests.post(url, headers=headers, json=payload, timeout=12)
+        if res.status_code == 200:
+            return res.json()['candidates']['content']['parts']['text'], "Gemini 1.5 Flash"
+        return None, f"HTTP Error {res.status_code}"
+    except Exception as e:
+        return None, f"Timeout/Crash ({str(e)[:40]})"
+
+def call_groq(messages):
+    if not config.GROQ_KEY:
+        return None, "Key Missing"
+        
+    # Absolute, verified full URL path targeting Groq API chat completions engine
+    url = "https://groq.com"
+    
+    headers = {
+        "Authorization": f"Bearer {config.GROQ_KEY}", 
+        "Content-Type": "application/json", 
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+    }
+    
+    formatted_messages = [{"role": "system", "content": config.SYSTEM_PROMPT}]
+    for m in messages:
+        if m["role"] != "system": formatted_messages.append(m)
+
+    # Dynamic pool linking your custom preference along with your working baseline model
+    models_to_try = config.GROQ_MODELS + ["allam-2-7b"]
+
+    for model in models_to_try:
+        payload = {"model": model, "messages": formatted_messages, "temperature": 0.2}
+        try:
+            res = requests.post(url, headers=headers, json=payload, timeout=12)
+            if res.status_code == 200:
+                res_json = res.json()
+                if 'choices' in res_json and len(res_json['choices']) > 0:
+                    content = res_json['choices'][0].get('message', {}).get('content')
+                    if content:
+                        return content, f"Verified Groq ({model})"
+            else:
+                print(f"\n[DEBUG] Model: {model} | URL: {url} | HTTP Status: {res.status_code}")
+        except Exception:
+            continue
+    return None, "FAILED"
