@@ -49,6 +49,11 @@
   - **`/btw`** — quick aside capture: dump a thought/note mid-conversation without derailing the current task; persisted durably (file, not just chat history) so it survives context compaction
   - **`/past`** — recall past context: surface previous session summaries / search past notes on demand
   - ⚠️ Open questions: exact storage location for `/btw` notes (new `NOTES.md` vs append to TASKS.md?), and whether `/past` filters by keyword/date. Clarify with user before building
+- [ ] **T-014** [P1] Editor must never get stuck — diagnose planner hangs FIRST
+  - **Symptom:** planner sometimes gets stuck for long periods; **last full session got stuck too** (reported 2026-10-04)
+  - **Rule:** diagnose root cause BEFORE building the T-012 editor, so the new editor inherits fixes, not the same bug
+  - **Diagnostics wanted:** live loaders/spinners, last-call info, elapsed time, retry state — visible instead of silent freeze
+  - ⚠️ Open Qs: hang = provider timeout? tool call never returning? REPL loop waiting on stdin? (need logs from a stuck run — collect on next occurrence; if agent is stuck, how does the user escape/save state first?)
 - [ ] **T-008** [P2] Context/memory strategy for long sessions — **phased, classifier LAST**:
   1. **File-state first (done):** durable facts live in repo files (TASKS.md, COORDINATION.md, ACCESS.md) → chat history is disposable
   2. **Token-trigger compaction:** when history > N tokens, one cheap LLM call summarizes turns older than last K; keep a **pinned-facts block** (identity, key locations, current task, decisions) that is never compressed. No classifier — trigger is a token count
