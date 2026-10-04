@@ -1,5 +1,7 @@
 
 
+
+
 # 📋 Task Backlog
 
 > **Workflow:**
@@ -11,7 +13,7 @@
 >
 > Priority: **P1** = do soon · **P2** = normal · **P3** = someday/maybe
 > Owner: `local` (desktop agent) · `cloud` (OCI server agent) — see COORDINATION.md
-> Next ID counter: **T-045**
+> Next ID counter: **T-048**
 
 ---
 
@@ -26,6 +28,23 @@
 
 ## 📥 Backlog
 
+- [ ] **T-047** [P1] Keys must always be available: git first, else server + local copy
+  - Private/public keys available in git if possible (ties to T-011 SOPS encryption)
+  - Otherwise: key lives on server AND a copy exists locally (redundancy)
+  - Never leave a key in exactly one place — always have a recoverable copy
+  - Document where each key lives (git / server / local) in ACCESS.md
+  - Keys stay out of plaintext commits; encrypted-in-git or outside-git only
+- [ ] **T-046** [P2] Re-evaluate the importance of keepalive property
+  - Assess current requirements and constraints of the project
+  - Determine whether keepalive is still a priority right now
+  - Consider alternatives if keepalive isn't feasible / needed yet
+  - Update plan/task list accordingly and document the decision
+- [ ] **T-045** [P1] Monitor current state of infra and resources
+  - System to track + display current infra and resource usage
+  - Real-time updates and alerts for changes/issues
+  - Integrate with existing monitoring and health-check tools
+  - Use the data to inform decisions and optimize allocation
+  - Continuously evaluate and improve the system
 - [ ] **T-044** [P2] Consider giving the assistant a personality (optional)
   - Explore traits that would be useful/engaging (tone, humor, preferences)
   - Prototype personality features if desired
@@ -177,4 +196,5 @@
 
 ---
 
-<!-- NEW-SESSION-2026-10-04: T-024..T-044 dictated by user, re-captured after earlier writes failed to persist. -->
+<!-- NEW-SESSION-2026-10-04: T-024..T-044 dictated by user, re-captured after earlier writes failed to persist.
+     2026-10-04 (2nd pass): T-045 (infra/resource monitoring), T-046 (re-evaluate keepalive), T-047 (keys available git→server+local) — re-captured AGAIN after confirmations were wrong; verified against git log 6209088. -->
