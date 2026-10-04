@@ -9,7 +9,7 @@
 >
 > Priority: **P1** = do soon · **P2** = normal · **P3** = someday/maybe
 > Owner: `local` (desktop agent) · `cloud` (OCI server agent) — see COORDINATION.md
-> Next ID counter: **T-009**
+> Next ID counter: **T-010**
 
 ---
 
@@ -24,6 +24,10 @@
 
 ## 📥 Backlog
 
+- [ ] **T-009** [P2] Custom harness: add `/btw` and `/past` commands
+  - **`/btw`** — quick aside capture: dump a thought/note mid-conversation without derailing the current task; persisted durably (file, not just chat history) so it survives context compaction
+  - **`/past`** — recall past context: surface previous session summaries / search past notes on demand
+  - ⚠️ Open questions: exact storage location for `/btw` notes (new `NOTES.md` vs append to TASKS.md?), and whether `/past` filters by keyword/date. Clarify with user before building
 - [ ] **T-008** [P2] Context/memory strategy for long sessions — **phased, classifier LAST**:
   1. **File-state first (done):** durable facts live in repo files (TASKS.md, COORDINATION.md, ACCESS.md) → chat history is disposable
   2. **Token-trigger compaction:** when history > N tokens, one cheap LLM call summarizes turns older than last K; keep a **pinned-facts block** (identity, key locations, current task, decisions) that is never compressed. No classifier — trigger is a token count
@@ -46,3 +50,6 @@
 
 ---
 
+
+
+--- [End of file] ---
