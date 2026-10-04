@@ -1,0 +1,69 @@
+import sys
+import json
+import config
+import api_clients
+import diagnostics
+import tools
+
+def cascade_llm(messages, gemini_ok, groq_ok):
+    if gemini_ok:
+        reply, active_model = api_clients.call_gemini(messages)
+        if reply: return reply, active_model
+        
+    if groq_ok:
+        reply, active_model = api_clients.call_groq(messages)
+        if reply: return reply, active_model
+        
+    print("\n❌ Critical Session Collapse: All verified responsive keys dropped the request.")
+    sys.exit(1)
+
+def main():
+    gemini_ok, groq_ok = diagnostics.run_startup_checks()
+    
+    if not gemini_ok and not groq_ok:
+        print("❌ Critical Launch Blocked: Both API connections are non-responsive.")
+        sys.exit(1)
+        
+    print("🤖 INTERACTIVE CONVERSATIONAL AGENT ONLINE")
+    print("Type 'exit' or 'quit' to close the session.\n")
+    
+    messages = []
+    
+    while True:
+        try:
+            user_input = input("✨ User ➔ ")
+            if user_input.lower() in ['exit', 'quit']: break
+            if not user_input.strip(): continue
+                
+            messages.append({"role": "user", "content": user_input})
+            response_text, active_model = cascade_llm(messages, gemini_ok, groq_ok)
+            messages.append({"role": "assistant", "content": response_text})
+            
+            try:
+                exec_data = json.loads(response_text.strip())
+                if "command" in exec_data:
+                    print(f"\n🧠 Agent Layer [{active_model}]: {exec_data['thought']}")
+                    print(f"💻 Shell Action: {exec_data['command']}")
+                    
+                    output = tools.execute_bash(exec_data['command'])
+                    print(f"📊 Terminal Output:\n{output['stdout'] if output['stdout'] else output['stderr']}\n")
+                    
+                    messages.append({
+                        "role": "user", 
+                        "content": f"Terminal Result (Exit Code {output['code']}):\nSTDOUT:\n{output['stdout']}\nSTDERR:\n{output['stderr']}"
+                    })
+                    
+                    final_reply, _ = cascade_llm(messages, gemini_ok, groq_ok)
+                    print(f"🤖 Assistant ➔ {final_reply}\n")
+                    messages.append({"role": "assistant", "content": final_reply})
+                else:
+                    print(f"\n🤖 Assistant ➔ {response_text}\n")
+            except json.JSONDecodeError:
+                print(f"\n🤖 Assistant ➔ {response_text}\n")
+                
+        except (KeyboardInterrupt, EOFError):
+            print("\n👋 Session ended.")
+            break
+
+if __name__ == "__main__":
+    main()
