@@ -18,7 +18,6 @@
 
 ## 📥 Backlog
 
-- [ ] **T-002** [P1] Restore `.env` from `Infra\KEys.txt` so the agent can start locally
 - [ ] **T-003** [P2] Delete `diagnostics.py` (legacy startup API calls, superseded by gateway)
 - [ ] **T-004** [P2] Clean backup/temp clutter (`api_clients.py.backup.*`, `assistant.py.backup.*`, `config.py.backup.*`, `temp/*.bak`) — now also on remote; plain commit removal is fine
 - [ ] **T-005** [P2] Write a real README (what it is, setup, usage)
@@ -27,9 +26,12 @@
 
 ## ✅ Done
 
+- [x] **T-002** Restore `.env` from `Infra\KEys.txt` (GEMINI + GROQ keys, gitignored, values never exposed) — 2026-10-04
 - [x] **T-000** Push 9 pending commits to `origin/master` — 2026-10-05
 
 ## 🗑️ Dropped
 <!-- Rejected / won't-fix, kept for memory. -->
 
 - [ ] ~~Claude Code Proxy (paid API)~~ — abandoned ~2026-10-03, too expensive; replaced by direct Gemini+Groq cascade
+
+---
