@@ -16,7 +16,11 @@
 ## 🔥 Active
 <!-- Max 1–3 tasks. What's being worked on right now. -->
 
-- [ ] **T-001** [P1] [owner: local] Verify model IDs `gemini-3.8-flash` / `qwen/qwen3.8-27b` against real Gemini/Groq model lists — likely invalid → 404 → 300s cooldown → gateway "looks dead"
+- [ ] **T-001** [P1] [owner: local] Verify model IDs `gemini-3.8-flash` / `qwen/qwen3.8-27b` against real provider lists — likely invalid → 404 → 300s cooldown → gateway "looks dead"
+  - [ ] 1. List real Gemini models — `GET https://generativelanguage.googleapis.com/v1beta/models` (key loaded from `.env`, read-only, never printed)
+  - [ ] 2. List real Groq models — `GET https://api.groq.com/openai/v1/models` (Bearer key from `.env`, read-only, never printed)
+  - [ ] 3. Compare lists vs config → correct the model IDs → commit fix
+  - [ ] 4. Log findings in COORDINATION.md so the cloud agent sees them
 
 ## 📥 Backlog
 
@@ -42,4 +46,3 @@
 
 ---
 
---- [End of file] ---
