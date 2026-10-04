@@ -13,7 +13,7 @@
 >
 > Priority: **P1** = do soon ┬╖ **P2** = normal ┬╖ **P3** = someday/maybe
 > Owner: `local` (desktop agent) ┬╖ `cloud` (OCI server agent) ΓÇö see COORDINATION.md
-> Next ID counter: **T-048**
+> Next ID counter: **T-051**
 
 ---
 
@@ -205,3 +205,19 @@ T-048 [P1] Life Tracker: track apps to build
    ├─ Use Life Tracker to monitor progress and reflect on experiences
    ├─ Continuously update and refine the list of apps to build
    └─ Explore ways to integrate Life Tracker with other tools and systems
+
+
+T-049 [P1] Explore subagent architecture and Chinese tools for token efficiency
+   ├─ Research subagent architecture and how it improves token efficiency
+   ├─ Investigate Chinese tools/libraries relevant to the stack (token optimization)
+   ├─ Run experiments comparing efficiency of different architectures/tools
+   ├─ Document findings and recommendations in the repo
+   └─ Consider integrating promising results into existing projects
+
+T-050 [P1] Expand Life Tracker: personal state, assets, finances, recurring life
+   ├─ Current state / assets / inventory of stuff owned
+   ├─ Finances (balances, income, spend)
+   ├─ Recurring tasks (things to do on a regular cadence)
+   ├─ Birthdays to remember (people + dates)
+   ├─ People to connect with once in a while (cadence + last touch)
+   └─ Build on the Life Tracker concept from personal OS; go beyond apps-to-build
