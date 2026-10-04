@@ -31,6 +31,7 @@ Get the **Personal OS agent** up and running.
 | GCP service account | `OneDrive\Desktop\NAV347\Infra\GCP-service-account-navpersonalasst-7e854324d6f3.json` |
 | API keys backup | `OneDrive\Desktop\NAV347\Infra\KEys.txt` (DO NOT print contents) |
 | Repo remote | `github.com/nav347/personal-assistant` (PUBLIC — no secrets in commits) |
+| Primary branch | **`master`** (consolidated 2026-10-03) |
 
 ## Current codebase state
 
@@ -57,18 +58,22 @@ Working CLI agent in repo root:
 4. `diagnostics.py` is legacy (makes startup API calls, contradicts current
    design) — delete or rewrite.
 5. Clean up `*.backup.*` files and `temp/*.bak` once stable.
-6. Before OCI deployment: add a confirmation/allowlist policy to `execute_bash`.
+6. Write a proper README.md (currently the 2-line GitHub-init stub).
+7. Before OCI deployment: add a confirmation/allowlist policy to `execute_bash`.
 
 ## History / decisions
 
 - **2026-10-03** — initial harness built, then refactored into the unified
   gateway design (backups in `temp/` + `*.backup.*`).
 - **2026-10-03 (session 2)** — added `PROJECT_STATE.md` + `ACCESS.md` as
-  repo-internal source of truth. Branch audit: `main` = real project,
-  `master` = empty GitHub-init stub (cleanup optional, not urgent).
-  Repo confirmed PUBLIC → secrets policy enforced (ACCESS.local.md gitignored).
-  SSH command to OCI recorded locally; cloud doc section assigned to the
-  cloud-side agent.
+  repo-internal source of truth. Repo confirmed PUBLIC → secrets policy
+  enforced (`ACCESS.local.md` gitignored). SSH command to OCI recorded
+  locally; cloud doc section assigned to the cloud-side agent.
+- **2026-10-03 (session 2, later)** — **`master` consolidated as primary
+  branch.** `main` and `master` had unrelated histories (master was an empty
+  GitHub-init stub); merged with `--allow-unrelated-histories` so no history
+  was destroyed. `main` kept temporarily as legacy; deletion pending user
+  confirmation. GitHub default branch already pointed at `master`.
 - **Claude Code Proxy — ABANDONED.** ~1 day spent on
   `%USERPROFILE%\claude-code-proxy` (Anthropic-compatible proxy, 15 provider
   backends) trying to run a Claude harness. Too expensive; settled on **direct
@@ -85,3 +90,4 @@ Working CLI agent in repo root:
 - Ask before destructive actions (per `personal_os.md`).
 - The git repo is the source of truth — if knowledge isn't in the repo,
   get it into the repo (gitignored file if private).
+- Work on **`master`** (primary branch).

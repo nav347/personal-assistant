@@ -11,7 +11,7 @@ If it isn't written here, it doesn't exist.
 ## Local (Windows laptop) — current dev environment
 
 Repo: `OneDrive\Desktop\NAV347\Personal\personal-assistant\personal-assistant`
-(branch: `main`)
+(branch: **`master`** — primary)
 
 ### How to run
 
@@ -75,6 +75,8 @@ this public repo intentionally).
 
 ## Repo layout notes
 
-- `main` branch = the real project.
-- `master` branch = empty GitHub-init stub (2-line README). Harmless; can be
-  cleaned up later by making `main` the default on GitHub and deleting `master`.
+- **`master` = primary branch** (consolidated 2026-10-03: full project merged
+  in from `main` via `--allow-unrelated-histories`; both histories preserved).
+- `main` = legacy branch name from local development. Kept temporarily;
+  candidate for deletion once master is confirmed primary everywhere.
+- GitHub default branch (`origin/HEAD`) already points to `master`.
