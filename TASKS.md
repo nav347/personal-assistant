@@ -9,7 +9,7 @@
 >
 > Priority: **P1** = do soon · **P2** = normal · **P3** = someday/maybe
 > Owner: `local` (desktop agent) · `cloud` (OCI server agent) — see COORDINATION.md
-> Next ID counter: **T-013**
+> Next ID counter: **T-014**
 
 ---
 
@@ -24,6 +24,12 @@
 
 ## 📥 Backlog
 
+- [ ] **T-013** [P1] **Environment-aware, self-evolving scripts** — replace ad-hoc manual commands with scripts that detect their environment and adapt
+  - **Problem:** too much manual command-calling / one-off command creation each time; wasteful, inconsistent, not unified
+  - **Goal:** a set of scripts that **sense the environment** (OS, paths, cloud vs local, tools present) and do the right thing automatically
+  - **Self-evolving:** when a script hits an unexpected condition/issue, it should **adapt or record how to adapt** (e.g. fall back, patch itself, or log a fix) rather than requiring a human to hand-craft a new command next time
+  - **Benefits:** cheaper (fewer bespoke LLM calls), more unified (one way to do each thing), reproducible
+  - ⚠️ Open Qs: where do scripts live (repo `scripts/`)? how do they self-evolve safely (auto-edit vs propose-then-apply)? guardrails so "self-evolving" can't do damage?
 - [ ] **T-010** [P1] **Unified harness — one unit, cloud + local, git-based setup**
   - Single codebase that runs **identically** on the OCI cloud server and the local desktop (same entrypoint, same config surface)
   - **Setup = clone + configure** — no bespoke per-machine steps; everything reproducible through git
