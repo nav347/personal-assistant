@@ -9,7 +9,7 @@
 >
 > Priority: **P1** = do soon · **P2** = normal · **P3** = someday/maybe
 > Owner: `local` (desktop agent) · `cloud` (OCI server agent) — see COORDINATION.md
-> Next ID counter: **T-010**
+> Next ID counter: **T-013**
 
 ---
 
@@ -24,6 +24,20 @@
 
 ## 📥 Backlog
 
+- [ ] **T-010** [P1] **Unified harness — one unit, cloud + local, git-based setup**
+  - Single codebase that runs **identically** on the OCI cloud server and the local desktop (same entrypoint, same config surface)
+  - **Setup = clone + configure** — no bespoke per-machine steps; everything reproducible through git
+  - Environment differences (paths, credentials, host) handled by config/env, not code forks
+  - ⚠️ Open Qs: single repo vs submodule for the harness? how does it relate to the existing personal-assistant code?
+- [ ] **T-011** [P1] **SOPS encryption so keys can live in git**
+  - Encrypt `.env` (and any secret files) with [SOPS](https://github.com/getsops/sops) → commit ciphertext to the repo safely
+  - Key management: age key (recommended) or cloud KMS; document the decrypt workflow
+  - Enables the cloud agent to pull secrets via git without manual copying
+  - ⚠️ Depends on / pairs with T-010 (git-based setup)
+- [ ] **T-012** [P2] **Harness editor UI — Claude-like input box, extensible**
+  - Interactive editor/REPL with a proper input box (multi-line, history, cursor editing) similar to the Claude CLI
+  - Built to be **extended** — user will add features as needed (e.g. `/btw`, `/past` from T-009)
+  - ⚠️ Open Qs: TUI framework (Textual/rich vs plain readline)? terminal-only or also web?
 - [ ] **T-009** [P2] Custom harness: add `/btw` and `/past` commands
   - **`/btw`** — quick aside capture: dump a thought/note mid-conversation without derailing the current task; persisted durably (file, not just chat history) so it survives context compaction
   - **`/past`** — recall past context: surface previous session summaries / search past notes on demand
@@ -49,7 +63,3 @@
 - [ ] ~~Claude Code Proxy (paid API)~~ — abandoned ~2026-10-03, too expensive; replaced by direct Gemini+Groq cascade
 
 ---
-
-
-
---- [End of file] ---
