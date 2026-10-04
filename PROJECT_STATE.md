@@ -4,8 +4,9 @@ Persistent memory for assistant sessions. Read this FIRST at session start,
 update it after meaningful work, commit the update. Keep it small — do not
 re-read the whole codebase every session (rate-limit friendly).
 
-Companion doc: **ACCESS.md** — single source of truth for how the assistant
-is accessed/run (local vs cloud). Update both when access changes.
+Companion docs:
+- **ACCESS.md** — how the assistant is accessed/run (committed, public-safe)
+- **ACCESS.local.md** — private connection details (gitignored, local only)
 
 _Last updated: 2026-10-03 (session 2 with CLI assistant)_
 
@@ -17,7 +18,8 @@ Get the **Personal OS agent** up and running.
 - Deployment target: **Oracle Cloud (OCI)** — already set up, do not re-do.
 - Move to OCI only once local development is stable.
 - **The git repo is the single source of truth** for project state, decisions,
-  and access methods (see ACCESS.md).
+  and access methods. Private details (IPs, keys) stay in gitignored files —
+  the repo is PUBLIC.
 
 ## Infra & assets
 
@@ -25,9 +27,10 @@ Get the **Personal OS agent** up and running.
 |---|---|
 | OCI instance | Oracle **Mumbai**, 1GB (free tier) |
 | OCI SSH keys | `OneDrive\Desktop\NAV347\Infra\Mumbai 1gb instance\ssh-key-oracle-mumbai-1gb.key` |
+| SSH command | `ACCESS.local.md` (gitignored) |
 | GCP service account | `OneDrive\Desktop\NAV347\Infra\GCP-service-account-navpersonalasst-7e854324d6f3.json` |
 | API keys backup | `OneDrive\Desktop\NAV347\Infra\KEys.txt` (DO NOT print contents) |
-| Repo remote | `github.com/nav347/personal-assistant` |
+| Repo remote | `github.com/nav347/personal-assistant` (PUBLIC — no secrets in commits) |
 
 ## Current codebase state
 
@@ -39,7 +42,7 @@ Working CLI agent in repo root:
 - `config.py` — loads `.env` (GEMINI_API_KEY, GROQ_API_KEY) + `personal_os.md` as system prompt
 - `tools.py` — `execute_bash()` (shell=True, 30s timeout, no guardrails yet)
 - `personal_os.md` — the Personal OS philosophy / system prompt (read-only reference)
-- `ACCESS.md` — how to access/run the assistant (local verified; cloud TBD)
+- `ACCESS.md` — access/run documentation (local verified; cloud = for cloud agent)
 
 ## Blockers / next steps
 
@@ -48,9 +51,9 @@ Working CLI agent in repo root:
 2. **Verify model IDs** — `gemini-3.8-flash` and `qwen/qwen3.8-27b` look
    suspicious; if invalid, every call 404s → 300s cooldown → gateway looks dead.
    Check against real provider model lists.
-3. **Document cloud access in ACCESS.md** — user says cloud access differs
-   from local; details not yet written down (SSH command, repo location on
-   server, how it runs there).
+3. **Cloud section of ACCESS.md** — ASSIGNED to the cloud-side agent (user's
+   instruction, 2026-10-03). SSH command already recorded in ACCESS.local.md.
+   Local agent should not fill this in.
 4. `diagnostics.py` is legacy (makes startup API calls, contradicts current
    design) — delete or rewrite.
 5. Clean up `*.backup.*` files and `temp/*.bak` once stable.
@@ -63,6 +66,9 @@ Working CLI agent in repo root:
 - **2026-10-03 (session 2)** — added `PROJECT_STATE.md` + `ACCESS.md` as
   repo-internal source of truth. Branch audit: `main` = real project,
   `master` = empty GitHub-init stub (cleanup optional, not urgent).
+  Repo confirmed PUBLIC → secrets policy enforced (ACCESS.local.md gitignored).
+  SSH command to OCI recorded locally; cloud doc section assigned to the
+  cloud-side agent.
 - **Claude Code Proxy — ABANDONED.** ~1 day spent on
   `%USERPROFILE%\claude-code-proxy` (Anthropic-compatible proxy, 15 provider
   backends) trying to run a Claude harness. Too expensive; settled on **direct
@@ -75,7 +81,7 @@ Working CLI agent in repo root:
 - Start: read this file + `ACCESS.md` + `git log --oneline -5`. Enough context.
 - After meaningful work: update this file (+ ACCESS.md if access changed),
   then commit (`docs: update project state`).
-- Never print or commit secrets. `.env` is gitignored — keep it that way.
+- Never print or commit secrets. `.env` and `ACCESS.local.md` are gitignored.
 - Ask before destructive actions (per `personal_os.md`).
 - The git repo is the source of truth — if knowledge isn't in the repo,
-  get it into the repo.
+  get it into the repo (gitignored file if private).
