@@ -9,7 +9,7 @@
 >
 > Priority: **P1** = do soon · **P2** = normal · **P3** = someday/maybe
 > Owner: `local` (desktop agent) · `cloud` (OCI server agent) — see COORDINATION.md
-> Next ID counter: **T-008**
+> Next ID counter: **T-009**
 
 ---
 
@@ -20,6 +20,10 @@
 
 ## 📥 Backlog
 
+- [ ] **T-008** [P2] Context/memory strategy for long sessions — **phased, classifier LAST**:
+  1. **File-state first (done):** durable facts live in repo files (TASKS.md, COORDINATION.md, ACCESS.md) → chat history is disposable
+  2. **Token-trigger compaction:** when history > N tokens, one cheap LLM call summarizes turns older than last K; keep a **pinned-facts block** (identity, key locations, current task, decisions) that is never compressed. No classifier — trigger is a token count
+  3. **Importance scorer (only if summaries lose facts):** cheap LLM call rating each turn 0–10, or embeddings + retrieval (pull relevant old context on demand) — NOT a trained ML classifier (no training data, silent misclassification = data loss)
 - [ ] **T-003** [P2] Delete `diagnostics.py` (legacy startup API calls, superseded by gateway)
 - [ ] **T-004** [P2] Clean backup/temp clutter (`api_clients.py.backup.*`, `assistant.py.backup.*`, `config.py.backup.*`, `temp/*.bak`) — now also on remote; plain commit removal is fine
 - [ ] **T-005** [P2] Write a real README (what it is, setup, usage)
@@ -37,3 +41,5 @@
 - [ ] ~~Claude Code Proxy (paid API)~~ — abandoned ~2026-10-03, too expensive; replaced by direct Gemini+Groq cascade
 
 ---
+
+--- [End of file] ---
